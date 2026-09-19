@@ -13,5 +13,37 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 con = DBI::dbConnect(RSQLite::SQLite(), "../data/midwest_airbnb.db")
 listings = DBI::dbReadTable(con, "listings")
+
+# A1
+nrow(listings)
 ```
+```{r}
+# A2
+
+sum(listings$city == "Columbus")
+```
+
+```{r}
+# A3
+
+listings[listings$city == "Chicago" & listings$price == max(listings$price[listings$city == "Chicago"], na.rm = TRUE), "name"]
+```
+```{r}
+# A4
+length(unique(listings$neighbourhood[listings$city == "Chicago"]))
+```
+
+```{r}
+# A5
+
+sum(listings$host_is_superhost == "t", na.rm = TRUE)
+```
+
+```{r}
+# A6
+
+sum(listings$price > 1000, na.rm = TRUE)
+```
+
+
 
