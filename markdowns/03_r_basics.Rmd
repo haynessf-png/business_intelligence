@@ -20,3 +20,43 @@ knitr::opts_chunk$set(echo = TRUE)
 crashes_per_day = 30125 / 365
 crashes_per_day
 ```
+
+```{r cincy_crashes, results='hold'} 
+# = stores the value under a name
+crashes_per_day = 30125 / 365
+
+# typing the name shows it
+crashes_per_day
+
+# <- does exactly the same thing as =
+crashes_per_day <- 30125 / 365
+
+# -> also works, pointing the other way
+30125 / 365 -> crashes_per_day
+```
+```{r}
+crashes_by_day = c(2020, 2241, 2327, 2285,
+                   2380, 1866, 1664)
+names(crashes_by_day) = c("Mon", "Tue", "Wed", "Thu",
+                          "Fri", "Sat", "Sun")
+crashes_by_day
+```
+
+
+## Type of 'crashes_per_day'
+```{r}
+typeof(crashes_by_day)
+
+crashes_by_day_int = c(2020L, 2241L, 2327L, 2285L,
+                   2380L, 1866L, 1664L) # integer
+names(crashes_by_day) = c("Mon", "Tue", "Wed", "Thu",
+                          "Fri", "Sat", "Sun")
+crashes_by_day |> typeof()
+```
+```{r}
+typeof(TRUE)     # logical
+typeof(401L)     # integer: the L
+typeof(401)      # double: no L
+typeof("401")    # character: quotes
+```
+

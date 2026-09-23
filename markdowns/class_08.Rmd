@@ -1,0 +1,101 @@
+---
+title: "class_08"
+author: "Scarlett F Haynes
+output: html_document
+date: "2026-09-23"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+dplyr::glimpse(ohio_df)
+
+#another approach to filter the dates would be:
+ohio_df |>
+  # overwrite the date col covert to date (from chr)
+dplyr::mutate(date = lubridate::ymd(date)) |>
+  #bc it is a date, we can do logical checks on it and keep dates from sep 01, 2026
+dplyr::filter(date >= '2026-09-01') ->
+  
+```
+
+
+
+```{r}
+View(usa_jobs_df)
+```
+
+```{r}
+colnames(usa_jobs_df)[grep("Department", colnames(usa_jobs_df), ignore.case = TRUE)]
+```
+
+
+```{r}
+jobs_small = usa_jobs_df |>
+  dplyr::select(
+    title = MatchedObjectDescriptor.PositionTitle,
+    department = MatchedObjectDescriptor.DepartmentName
+  )
+```
+
+```{r}
+View(usa_jobs_df)
+```
+
+
+Class 08 Part 2
+```{r}
+httr2::request("https://data.usajobs.gov/api/search") |>
+  httr2::req_url_query(Keyword = "Data Analyst", ResultsPerPage = 500) |>
+  httr2::req_headers(
+    Host = "data.usajobs.gov",
+    "User-Agent" = "haynesssf@miamioh.edu",
+    "Authorization-Key" = Sys.getenv("USA_JOBS_API_KEY")
+  ) |>
+  httr2::req_perform() |>
+  httr2::resp_body_string() |>
+  jsonlite::fromJSON(flatten = TRUE) -> usa_jobs_df
+
+usa_jobs_df = usa_jobs_df$SearchResult$SearchResultItems
+
+
+jobs_small = usa_jobs_df |>
+  dplyr::select(
+    title = MatchedObjectDescriptor.PositionTitle,
+    department = MatchedObjectDescriptor.DepartmentName
+  )
+
+# Easy way -- since we
+nrow(jobs_small)
+# q 2
+table(jobs_small$department) |> sort(decreasing = T)
+jobs_small |> dplyr::count(department) |>
+  dplyr::arrange(dplyr::desc(n)) |> head(3)
+
+# The harder way (but being literal)
+jobs_small |> dplyr::filter(title == 'Data Analyst')
+
+# The harder way (without being literal)
+# Data analysts 
+index_data_analyst = jobs_small$title |>
+  stringr::str_detect("'Data Analyst' | 'Data Analyst") -> count_literal
+
+# given that this is a true or false type result
+# true rows will be kept
+# nothing mean keep all columns
+
+count_jesse_standard = jobs_small[index_data_analyst , ]
+count_jesse_standard |> dplyr::count(department) |>
+  dplyr::arrange(dplyr::desc(n))
+```
+
+```{r}
+View(count_jesse_standard)
+```
+
+
+
+
+lubridate = 

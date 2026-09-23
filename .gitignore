@@ -3,3 +3,10 @@
 .Rproj.user
 .DS_Store
 .Rhistory
+.Renviron
+apps/job_scout_chat/api_key.txt
+.DS_Store
+/apps/job_scout_chat/shiny_bookmarks
+/apps/job_scout_chat/.shinychat
+apps/job_scout_chat/data/scout.db-shm
+apps/job_scout_chat/data/scout.db-wal

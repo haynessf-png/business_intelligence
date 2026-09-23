@@ -9,11 +9,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Scarlett Haynes" />
+<meta name="author" content="Scarlett F Haynes" />
 
-<meta name="date" content="2026-09-19" />
+<meta name="date" content="2026-09-21" />
 
-<title>03 - R Basics</title>
+<title>Class_06</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1587,44 +1587,48 @@ border-radius: 0px;
 
 
 
-<h1 class="title toc-ignore">03 - R Basics</h1>
-<h4 class="author">Scarlett Haynes</h4>
-<h4 class="date">2026-09-19</h4>
+<h1 class="title toc-ignore">Class_06</h1>
+<h4 class="author">Scarlett F Haynes</h4>
+<h4 class="date">2026-09-21</h4>
 
 </div>
 
 
-<div id="crashes-per-day" class="section level1" number="1">
-<h1><span class="header-section-number">1</span> Crashes Per Day</h1>
-<pre class="r"><code>crashes_per_day = 30125 / 365
-crashes_per_day</code></pre>
-<pre><code>## [1] 82.53425</code></pre>
-<pre class="r"><code># = stores the value under a name
-crashes_per_day = 30125 / 365
-
-# typing the name shows it
-crashes_per_day
-
-# &lt;- does exactly the same thing as =
-crashes_per_day &lt;- 30125 / 365
-
-# -&gt; also works, pointing the other way
-30125 / 365 -&gt; crashes_per_day</code></pre>
-<pre><code>## [1] 82.53425</code></pre>
-<pre class="r"><code>crashes_by_day = c(2020, 2241, 2327, 2285,
-                   2380, 1866, 1664)
-names(crashes_by_day) = c(&quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;,
-                          &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;)
-crashes_by_day</code></pre>
-<pre><code>##  Mon  Tue  Wed  Thu  Fri  Sat  Sun 
-## 2020 2241 2327 2285 2380 1866 1664</code></pre>
-<div id="type-of-crashes_per_day" class="section level2" number="1.1">
-<h2><span class="header-section-number">1.1</span> Type of
-‘crashes_per_day’</h2>
+<div id="quick-loading-of-data-from-assignment-04" class="section level2" number="1">
+<h2><span class="header-section-number">1</span> Quick Loading of data
+from Assignment 04</h2>
+<pre class="r"><code>con = DBI::dbConnect(RSQLite::SQLite(), &quot;../data/midwest_airbnb.db&quot;)
+listings = DBI::dbReadTable(con, &quot;listings&quot;)</code></pre>
 </div>
+<div id="kahoot-02" class="section level2" number="2">
+<h2><span class="header-section-number">2</span> Kahoot 02</h2>
+<pre class="r"><code>run = readr::read_csv(
+  &quot;https://isa401-find-your-seat.vercel.app/api/export?section=A&amp;run=13&quot;)</code></pre>
+<pre><code>## Rows: 157 Columns: 10
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr  (5): section, track, seat, table, level_name
+## dbl  (4): run, level, seconds, rank
+## dttm (1): reached_at
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>dplyr::glimpse(run)</code></pre>
+<pre><code>## Rows: 157
+## Columns: 10
+## $ section    &lt;chr&gt; &quot;A&quot;, &quot;A&quot;, &quot;A&quot;, &quot;A&quot;, &quot;A&quot;, &quot;A&quot;, &quot;A&quot;, &quot;A&quot;, &quot;A&quot;, &quot;A&quot;, &quot;A&quot;, &quot;A&quot;,…
+## $ run        &lt;dbl&gt; 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13,…
+## $ track      &lt;chr&gt; &quot;opener&quot;, &quot;opener&quot;, &quot;opener&quot;, &quot;opener&quot;, &quot;opener&quot;, &quot;opener&quot;,…
+## $ seat       &lt;chr&gt; &quot;R2-5&quot;, &quot;L1-2&quot;, &quot;L2-3&quot;, &quot;R3-6&quot;, &quot;L2-2&quot;, &quot;R1-1&quot;, &quot;L1-7&quot;, &quot;R3…
+## $ table      &lt;chr&gt; &quot;R2&quot;, &quot;L1&quot;, &quot;L2&quot;, &quot;R3&quot;, &quot;L2&quot;, &quot;R1&quot;, &quot;L1&quot;, &quot;R3&quot;, &quot;L3&quot;, &quot;R1&quot;,…
+## $ level      &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+## $ level_name &lt;chr&gt; &quot;seat picked&quot;, &quot;seat picked&quot;, &quot;seat picked&quot;, &quot;seat picked&quot;,…
+## $ reached_at &lt;dttm&gt; 2026-09-09 12:26:18, 2026-09-09 12:35:06, 2026-09-09 12:35…
+## $ seconds    &lt;dbl&gt; 0, 529, 534, 540, 541, 547, 548, 550, 550, 551, 552, 554, 5…
+## $ rank       &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…</code></pre>
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiMDMgLSBSIEJhc2ljcyIKYXV0aG9yOiAiU2NhcmxldHQgSGF5bmVzIgpkYXRlOiAnYHIgU3lzLkRhdGUoKWAnCm91dHB1dDogCiAgaHRtbF9kb2N1bWVudDoKICAgIHRvYzogVFJVRQogICAgdG9jX2Zsb2F0OiBUUlVFCiAgICBudW1iZXJfc2VjdGlvbnM6IFRSVUUKICAgIGNvZGVfZm9sZGluZzogc2hvdwogICAgY29kZV9kb3dubG9hZDogVFJVRQotLS0KCmBgYHtyIHNldHVwLCBpbmNsdWRlPUZBTFNFfQprbml0cjo6b3B0c19jaHVuayRzZXQoZWNobyA9IFRSVUUpCmBgYAoKIyBDcmFzaGVzIFBlciBEYXkgCmBgYHtyfQpjcmFzaGVzX3Blcl9kYXkgPSAzMDEyNSAvIDM2NQpjcmFzaGVzX3Blcl9kYXkKYGBgCgpgYGB7ciBjaW5jeV9jcmFzaGVzLCByZXN1bHRzPSdob2xkJ30gCiMgPSBzdG9yZXMgdGhlIHZhbHVlIHVuZGVyIGEgbmFtZQpjcmFzaGVzX3Blcl9kYXkgPSAzMDEyNSAvIDM2NQoKIyB0eXBpbmcgdGhlIG5hbWUgc2hvd3MgaXQKY3Jhc2hlc19wZXJfZGF5CgojIDwtIGRvZXMgZXhhY3RseSB0aGUgc2FtZSB0aGluZyBhcyA9CmNyYXNoZXNfcGVyX2RheSA8LSAzMDEyNSAvIDM2NQoKIyAtPiBhbHNvIHdvcmtzLCBwb2ludGluZyB0aGUgb3RoZXIgd2F5CjMwMTI1IC8gMzY1IC0+IGNyYXNoZXNfcGVyX2RheQpgYGAKYGBge3J9CmNyYXNoZXNfYnlfZGF5ID0gYygyMDIwLCAyMjQxLCAyMzI3LCAyMjg1LAogICAgICAgICAgICAgICAgICAgMjM4MCwgMTg2NiwgMTY2NCkKbmFtZXMoY3Jhc2hlc19ieV9kYXkpID0gYygiTW9uIiwgIlR1ZSIsICJXZWQiLCAiVGh1IiwKICAgICAgICAgICAgICAgICAgICAgICAgICAiRnJpIiwgIlNhdCIsICJTdW4iKQpjcmFzaGVzX2J5X2RheQpgYGAKCgojIyBUeXBlIG9mICdjcmFzaGVzX3Blcl9kYXknCg==</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiQ2xhc3NfMDYiCmF1dGhvcjogIlNjYXJsZXR0IEYgSGF5bmVzIgpkYXRlOiAiMjAyNi0wOS0yMSIKb3V0cHV0OiAKICBodG1sX2RvY3VtZW50OgogICAgdG9jOiBUUlVFCiAgICB0b2NfZmxvYXQ6IFRSVUUKICAgIG51bWJlcl9zZWN0aW9uczogVFJVRQogICAgY29kZV9kb3dubG9hZDogVFJVRQogICAgY29kZV9mb2xkaW5nOiBzaG93Ci0tLQoKYGBge3Igc2V0dXAsIGluY2x1ZGU9RkFMU0V9CmtuaXRyOjpvcHRzX2NodW5rJHNldChlY2hvID0gVFJVRSkKYGBgCgojIyBRdWljayBMb2FkaW5nIG9mIGRhdGEgZnJvbSBBc3NpZ25tZW50IDA0CgpgYGB7ciBodzA0fQpjb24gPSBEQkk6OmRiQ29ubmVjdChSU1FMaXRlOjpTUUxpdGUoKSwgIi4uL2RhdGEvbWlkd2VzdF9haXJibmIuZGIiKQpsaXN0aW5ncyA9IERCSTo6ZGJSZWFkVGFibGUoY29uLCAibGlzdGluZ3MiKQpgYGAKCiMjIEthaG9vdCAwMgpgYGB7ciBrYWhvb3QgMn0KcnVuID0gcmVhZHI6OnJlYWRfY3N2KAogICJodHRwczovL2lzYTQwMS1maW5kLXlvdXItc2VhdC52ZXJjZWwuYXBwL2FwaS9leHBvcnQ/c2VjdGlvbj1BJnJ1bj0xMyIpCmRwbHlyOjpnbGltcHNlKHJ1bikKYGBgCgo=</div>
 
 
 </div>
@@ -1662,7 +1666,7 @@ $(document).ready(function () {
 <!-- code folding -->
 <script>
 $(document).ready(function () {
-  window.initializeSourceEmbed("03_r_basics.Rmd");
+  window.initializeSourceEmbed("Class_06.Rmd");
   window.initializeCodeFolding("show" === "show");
 });
 </script>
