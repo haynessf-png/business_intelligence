@@ -11,3 +11,4 @@ apps/job_scout_chat/api_key.txt
 apps/job_scout_chat/data/scout.db-shm
 apps/job_scout_chat/data/scout.db-wal
 apps/job_scout_chat/Dockerfile
+.DS_Store
