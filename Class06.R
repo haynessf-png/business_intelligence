@@ -1,0 +1,1 @@
+# Class 06, 50 min in, I cannot get to the querychat or the shinychat, ellmer package installed 

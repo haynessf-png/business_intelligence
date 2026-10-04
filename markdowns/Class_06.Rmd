@@ -15,17 +15,68 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Quick Loading of data from Assignment 04
+# Quick Loading of data from Assignment 04
 
 ```{r hw04}
 con = DBI::dbConnect(RSQLite::SQLite(), "../data/midwest_airbnb.db")
 listings = DBI::dbReadTable(con, "listings")
 ```
 
-## Kahoot 02
+# Kahoot 02
 ```{r kahoot 2}
 run = readr::read_csv(
   "https://isa401-find-your-seat.vercel.app/api/export?section=A&run=13")
 dplyr::glimpse(run)
 ```
+## 1. campus is a named list and Farmer is one of its elements. What does campus["Farmer"] give you?
+A. An error
+B. A shorter list ✅
+C. A 10 row data frame
+D. A shorter vector  
 
+Correct Answer: A shorter list
+
+
+## 2. Why did we download occupation.xlsx in the browser instead of reading it from its web address?
+A. Excel files are binary and R cannot read them
+B. To practice File > Save
+C. read_excel() needs a file on disk ✅
+D. The file was too large for R  
+
+Correct Answer: read_excel() needs a file on disk
+
+## 3. In the following code, what does skip = 1 do?
+read_excel("../data/occupation.xlsx", sheet = "Table 1.3", skip = 1, n_max = 3)
+A. Drops the footnote rows
+B. Skips the title row above the header ✅
+C. Skips the first sheet
+D. Reads only one row  
+
+Correct Answer: Skips the title row above the header
+
+
+## 4. Your markdown lives in markdowns/ and the workbook is in data/. Which path works when you click Knit?
+A. "../data/occupation.xlsx" ✅
+B. "occupation.xlsx"
+C. "data/occupation.xlsx"
+D. "isa401/data/occupation.xlsx"  
+
+Correct Answer: "../data/occupation.xlsx"
+
+
+## 5. fromJSON() on the Cincinnati crash file returned a data frame where every column was character. Why?
+A. glimpse() converts columns to character
+B. The city publishes no numbers
+C. fromJSON() always returns character columns
+D. The file quotes every value, so R stores them as text ✅
+
+Correct Answer: The file quotes every value, so R stores them as text
+
+
+## 6. In the Heist, Stage 1 was a CSV file and Stage 2 was JSON. Which functions imported them?
+A. read_csv() then fromJSON() ✅
+B. read_csv and then read_json()
+C. dbReadTable() for both
+D. read_excel() for both  
+
+Correct Answer: read_csv() then fromJSON()

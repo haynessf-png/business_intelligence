@@ -1,3 +1,5 @@
+install.packages("querychat", dependencies = TRUE)
+
 con = DBI::dbConnect(RSQLite::SQLite(), "data/scout.db")
 
 client = ellmer::chat_openai(
@@ -17,3 +19,4 @@ qc$app_obj()
 
 
 # create a copy then paste instreuctions change data cant some things
+

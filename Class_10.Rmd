@@ -1,0 +1,60 @@
+---
+title: 'Class 10: Web Scraping'
+author: "Scarlett Haynes"
+date: "2026-09-28"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+    number_sections: TRUE
+    code_download: TRUE
+    code_showing: show
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Robotstxt
+
+The code chunk below will show the output from the [robotstxt package](https://github.com/ropensci/robotstxt) for the ISA course bulletin available at: 
+<https://bulletin.miamioh.edu/courses-instruction/isa/>
+
+
+```{r robotstxt}
+robotstxt::paths_allowed(paths = "/courses-instruction/isa/", domain = "bulletin.miamioh.edu", bot = "*")
+```
+## 
+
+```{r}
+robotstxt::paths_allowed(paths = "/jobs/", domain = "https://www.linkedin.com", bot = "*")
+```
+If you removed the '/' after the '.com', the warning disappeared and we got a consistent result with the 
+<https://www.linkedin.com/robots.txt> page 
+
+
+## 'rvest' demo: ISA Course Bulletin 
+
+```{r rvest_demo}
+isa_page_in_r = rvest::read_html("https://bulletin.miamioh.edu/courses-instruction/isa/")
+
+# extract the titles
+# If all titles look the same on the page, it means they have the same tag/class, which would allow you to extract then in one step
+
+# Instructions
+# we got the selector below:
+# [a] highlighted the course title
+# [b] right clicked and selected inspect
+# [c] found the part that was flushed containing the title
+# [d] right clicked and copied the selector 
+# [e] I saw that the output from the code below just got me the 24th course so I dropped the ':nth-child(24)'
+
+
+isa_page_in_r |> rvest::html_elements(
+  "#sc_sccoursedescs > div > p.courseblocktitle > strong"
+) |> 
+  rvest::html_text2()
+
+```
+
+
