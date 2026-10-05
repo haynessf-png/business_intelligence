@@ -68,7 +68,7 @@ city_shares |>
 
 ## Task 1
 
-```{r task-1}
+```{r task-1-extra}
 host_counts = listings |>
   dplyr::count(host_id, name = "host_listings")
 
