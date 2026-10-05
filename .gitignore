@@ -12,3 +12,4 @@ apps/job_scout_chat/data/scout.db-shm
 apps/job_scout_chat/data/scout.db-wal
 apps/job_scout_chat/Dockerfile
 .DS_Store
+.DS_Store

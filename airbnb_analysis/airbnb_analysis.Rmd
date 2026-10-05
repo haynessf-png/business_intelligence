@@ -1,0 +1,382 @@
+---
+title: "airbnb_analysis"
+author: "Scarlett Haynes"
+date: "2026-10-05"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load-data}
+con = DBI::dbConnect(
+  RSQLite::SQLite(),
+  "../data/midwest_airbnb_extended.db"
+)
+
+listings = DBI::dbReadTable(con, "listings") |>
+  tibble::as_tibble()
+
+availability = DBI::dbReadTable(con, "availability_monthly") |>
+  tibble::as_tibble()
+
+reviews = DBI::dbReadTable(con, "reviews_monthly") |>
+  tibble::as_tibble()
+
+DBI::dbDisconnect(con)
+
+dim(listings)
+dim(availability)
+dim(reviews)
+```
+
+## Task 1
+
+```{r task-1}
+# Count each host's listings across all three cities
+host_counts = listings |>
+  dplyr::count(host_id, name = "host_listings")
+
+# A1: Number of hosts with 10 or more listings
+large_hosts = host_counts |>
+  dplyr::filter(host_listings >= 10)
+
+large_hosts |>
+  dplyr::summarize(hosts_with_10_or_more = dplyr::n())
+
+# Join host counts back to individual listings
+listings_with_hosts = listings |>
+  dplyr::left_join(host_counts, by = "host_id")
+
+# Percentage of each city's listings held by those hosts
+city_shares = listings_with_hosts |>
+  dplyr::group_by(city) |>
+  dplyr::summarize(
+    total_listings = dplyr::n(),
+    large_host_listings = sum(host_listings >= 10),
+    percent = 100 * large_host_listings / total_listings,
+    .groups = "drop"
+  )
+
+city_shares
+
+# A2: Chicago's percentage
+city_shares |>
+  dplyr::filter(city == "Chicago")
+```
+
+## Task 1
+
+```{r task-1}
+host_counts = listings |>
+  dplyr::count(host_id, name = "host_listings")
+
+large_hosts = host_counts |>
+  dplyr::filter(host_listings >= 10)
+
+# A1
+large_hosts |>
+  dplyr::summarize(A1 = dplyr::n())
+
+listings_with_hosts = listings |>
+  dplyr::left_join(host_counts, by = "host_id")
+
+city_shares = listings_with_hosts |>
+  dplyr::group_by(city) |>
+  dplyr::summarize(
+    total_listings = dplyr::n(),
+    large_host_listings = sum(host_listings >= 10),
+    percent = 100 * large_host_listings / total_listings,
+    .groups = "drop"
+  )
+
+# All cities, also needed for B2
+city_shares
+
+# A2
+city_shares |>
+  dplyr::filter(city == "Chicago") |>
+  dplyr::select(A2 = percent)
+```
+
+## Task 2
+
+```{r task-2}
+family_value = listings |>
+  dplyr::filter(
+    room_type == "Entire home/apt",
+    accommodates >= 4,
+    number_of_reviews >= 10,
+    review_scores_rating >= 4.8
+  ) |>
+  dplyr::mutate(
+    price_per_person = price / accommodates
+  ) |>
+  dplyr::group_by(city, neighbourhood) |>
+  dplyr::summarize(
+    qualifying_listings = dplyr::n(),
+    median_price_per_person = median(
+      price_per_person, na.rm = TRUE
+    ),
+    .groups = "drop"
+  ) |>
+  dplyr::filter(qualifying_listings >= 20)
+
+# A3: Returns all tied neighbourhoods if there is a tie
+family_value |>
+  dplyr::filter(city == "Columbus") |>
+  dplyr::slice_min(
+    median_price_per_person,
+    n = 1,
+    with_ties = TRUE
+  )
+```
+```{r}
+family_value |>
+  dplyr::filter(city == "Columbus") |>
+  dplyr::slice_min(
+    median_price_per_person,
+    n = 1,
+    with_ties = TRUE
+  )
+```
+
+## Task 3
+
+```{r task-3}
+earnings = listings |>
+  dplyr::group_by(city, room_type) |>
+  dplyr::summarize(
+    dplyr::across(
+      c(price, reviews_per_month, estimated_revenue_l365d),
+      ~ median(.x, na.rm = TRUE),
+      .names = "median_{.col}"
+    ),
+    .groups = "drop"
+  )
+
+earnings
+
+# A4
+earnings |>
+  dplyr::filter(
+    city == "Twin Cities",
+    room_type == "Entire home/apt"
+  ) |>
+  dplyr::select(A4 = median_estimated_revenue_l365d)
+```
+
+## Task 4
+
+```{r task-4}
+ranked_revenue = listings |>
+  dplyr::group_by(city) |>
+  dplyr::arrange(
+    dplyr::desc(estimated_revenue_l365d),
+    .by_group = TRUE
+  ) |>
+  dplyr::mutate(
+    top_10_percent = dplyr::row_number() <=
+      ceiling(0.10 * dplyr::n())
+  ) |>
+  dplyr::ungroup()
+
+revenue_shares = ranked_revenue |>
+  dplyr::group_by(city) |>
+  dplyr::summarize(
+    total_revenue = sum(
+      estimated_revenue_l365d, na.rm = TRUE
+    ),
+    top_10_revenue = sum(
+      estimated_revenue_l365d[top_10_percent],
+      na.rm = TRUE
+    ),
+    percent = 100 * top_10_revenue / total_revenue,
+    .groups = "drop"
+  )
+
+# All cities, also needed for B2
+revenue_shares
+
+# A5
+revenue_shares |>
+  dplyr::filter(city == "Columbus") |>
+  dplyr::select(A5 = percent)
+```
+
+## Task 5
+
+```{r task-5}
+october_availability = availability |>
+  dplyr::filter(month == "2026-10")
+
+october_homes = listings |>
+  dplyr::filter(room_type == "Entire home/apt") |>
+  dplyr::inner_join(october_availability, by = "id") |>
+  dplyr::mutate(
+    mostly_taken = nights_available < 0.5 * nights_in_month
+  )
+
+taken_shares = october_homes |>
+  dplyr::group_by(city) |>
+  dplyr::summarize(
+    matched_homes = dplyr::n(),
+    share = mean(mostly_taken, na.rm = TRUE),
+    percent = 100 * share,
+    .groups = "drop"
+  )
+
+taken_shares
+
+# A6 and A7
+taken_shares |>
+  dplyr::slice_min(share, n = 1, with_ties = TRUE) |>
+  dplyr::select(A6 = city, A7_share = share, A7_percent = percent)
+```
+
+## Task 6
+
+```{r task-6}
+monthly_demand = reviews |>
+  dplyr::inner_join(
+    listings |> dplyr::select(id, city),
+    by = "id"
+  ) |>
+  dplyr::filter(
+    month >= "2025-07",
+    month <= "2026-06"
+  ) |>
+  dplyr::group_by(city, month) |>
+  dplyr::summarize(
+    total_reviews = sum(reviews, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+twin_cities_demand = monthly_demand |>
+  dplyr::filter(city == "Twin Cities") |>
+  dplyr::arrange(month)
+
+twin_cities_demand
+
+# A8
+twin_cities_demand |>
+  dplyr::slice_max(total_reviews, n = 1, with_ties = TRUE) |>
+  dplyr::select(A8 = month, total_reviews)
+
+# A9
+twin_cities_demand |>
+  dplyr::summarize(
+    busiest_reviews = max(total_reviews),
+    quietest_reviews = min(total_reviews),
+    A9 = busiest_reviews / quietest_reviews
+  )
+```
+
+## Task 7
+
+```{r task-7}
+superhost_summary = listings |>
+  dplyr::filter(
+    room_type == "Entire home/apt",
+    host_is_superhost %in% c("t", "f")
+  ) |>
+  dplyr::group_by(city, host_is_superhost) |>
+  dplyr::summarize(
+    listings_count = dplyr::n(),
+    median_price = median(price, na.rm = TRUE),
+    median_rating = median(review_scores_rating, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+superhost_summary
+
+superhost_premiums = superhost_summary |>
+  dplyr::group_by(city) |>
+  dplyr::summarize(
+    superhost_median_price =
+      median_price[host_is_superhost == "t"],
+    other_host_median_price =
+      median_price[host_is_superhost == "f"],
+    premium_dollars =
+      superhost_median_price - other_host_median_price,
+    superhost_median_rating =
+      median_rating[host_is_superhost == "t"],
+    other_host_median_rating =
+      median_rating[host_is_superhost == "f"],
+    .groups = "drop"
+  )
+
+# Three premiums and ratings for B1
+superhost_premiums
+```
+
+## Task 8
+
+```{r task-8}
+missing_availability = listings |>
+  dplyr::anti_join(availability, by = "id")
+
+# A10
+missing_availability |>
+  dplyr::summarize(A10 = dplyr::n())
+
+missing_by_city = missing_availability |>
+  dplyr::count(city, name = "missing_listings") |>
+  dplyr::arrange(dplyr::desc(missing_listings))
+
+missing_by_city
+
+# City that loses the most, for your README
+missing_by_city |>
+  dplyr::slice_max(missing_listings, n = 1, with_ties = TRUE)
+```
+
+## B1: The badge
+
+```{r b1}
+superhost_premiums |>
+  dplyr::select(
+    city,
+    premium_dollars,
+    superhost_median_rating,
+    other_host_median_rating
+  )
+
+# Another number to check: estimated revenue by Superhost status
+listings |>
+  dplyr::filter(
+    city == "Twin Cities",
+    room_type == "Entire home/apt",
+    host_is_superhost %in% c("t", "f")
+  ) |>
+  dplyr::group_by(host_is_superhost) |>
+  dplyr::summarize(
+    median_estimated_revenue = median(
+      estimated_revenue_l365d, na.rm = TRUE
+    ),
+    .groups = "drop"
+  )
+```
+## B2: The cap
+
+```{r b2}
+cap_comparison = city_shares |>
+  dplyr::select(
+    city,
+    large_host_listing_percent = percent
+  ) |>
+  dplyr::left_join(
+    revenue_shares |>
+      dplyr::select(
+        city,
+        top_10_revenue_percent = percent
+      ),
+    by = "city"
+  ) |>
+  dplyr::arrange(
+    dplyr::desc(large_host_listing_percent)
+  )
+
+cap_comparison
+```
