@@ -96,6 +96,51 @@ View(count_jesse_standard)
 ```
 
 
+```{r}
+library(httr2)
+
+resp <- request("https://data.cincinnati-oh.gov/resource/rvmt-pkmq.json") |>
+  req_url_query(
+    `$select` = "count(*) AS n",
+    `$where` = "crashdate >= '2026-07-01T00:00:00' AND crashdate < '2026-08-01T00:00:00'"
+  ) |>
+  req_perform() |>
+  resp_body_json()
+
+as.integer(resp[[1]]$n)
+```
+
+
+```{r}
+july_counts = httr2::request(
+  "https://data.cincinnati-oh.gov/resource/rvmt-pkmq.json"
+) |>
+  httr2::req_url_query(
+    "$select" = "count(*) AS n, count(distinct localreportno) AS crashes",
+    "$where" = "crashdate >= '2026-07-01T00:00:00' AND crashdate < '2026-08-01T00:00:00'"
+  ) |>
+  httr2::req_perform() |>
+  httr2::resp_body_string() |>
+  jsonlite::fromJSON()
+
+july_counts
+```
 
 
 lubridate = 
+
+```{r}
+july_crashes = httr2::request(
+  "https://data.cincinnati-oh.gov/resource/rvmt-pkmq.json"
+) |>
+  httr2::req_url_query(
+    "$select" = "count(distinct localreportno) AS crashes",
+    "$where" = "crashdate >= '2026-07-01T00:00:00' AND crashdate < '2026-08-01T00:00:00'"
+  ) |>
+  httr2::req_perform() |>
+  httr2::resp_body_string() |>
+  jsonlite::fromJSON()
+
+july_crashes
+```
+

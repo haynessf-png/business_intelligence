@@ -1,0 +1,122 @@
+---
+title: "Homework 7"
+author: "Scarlett Haynes"
+output: html_document
+---
+
+## Question 1
+
+```{r check-robots}
+robotstxt::paths_allowed(
+  paths = "/fsb/directory/",
+  domain = "miamioh.edu",
+  bot = "*"
+)
+```
+
+```{r departments}
+department_names = c(
+  "Accountancy",
+  "Economics",
+  "Entrepreneurship",
+  "Finance",
+  "Information Systems & Analytics",
+  "Marketing",
+  "Management"
+)
+
+department_paths = c(
+  "Accountancy",
+  "Economics",
+  "Entrepreneurship",
+  "Finance",
+  "Information%20Systems%20--%20Analytics",
+  "Marketing",
+  "Management"
+)
+```
+
+```{r scrape-and-combine}
+scrape_department = function(dept_number) {
+
+  webpage = rvest::read_html(paste0(
+    "https://miamioh.edu/fsb/directory/?up=/query/all/all/",
+    department_paths[dept_number],
+    "/all"
+  ))
+
+  people = webpage |>
+    rvest::html_elements("td:nth-child(3)")
+
+  department_df = data.frame(
+    department = department_names[dept_number],
+
+    name = webpage |>
+      rvest::html_elements("td:nth-child(2)") |>
+      rvest::html_element("img") |>
+      rvest::html_attr("alt"),
+
+    position = people |>
+      rvest::html_element("i") |>
+      rvest::html_text2(),
+
+    website = people |>
+      rvest::html_element("strong a") |>
+      rvest::html_attr("href"),
+
+    link_name = people |>
+      rvest::html_element("strong a") |>
+      rvest::html_text2()
+  )
+
+  # Use the linked name if the picture label is missing
+  dplyr::bind_rows(
+    department_df |>
+      dplyr::filter(!is.na(name), name != ""),
+
+    department_df |>
+      dplyr::filter(is.na(name) | name == "") |>
+      dplyr::mutate(name = link_name)
+  ) |>
+    dplyr::select(department, name, position, website)
+}
+
+# Run the function for all seven departments
+fsb_directory = purrr::map_df(
+  .x = 1:7,
+  .f = scrape_department
+)
+```
+
+## All Departments
+
+```{r print-all-departments}
+dplyr::glimpse(fsb_directory)
+print(fsb_directory)
+```
+
+## First Few Observations
+
+```{r first-observations}
+head(fsb_directory)
+```
+
+## Department Counts
+
+```{r department-counts}
+fsb_directory |>
+  dplyr::count(department)
+```
+
+## Check for Missing Information
+
+The following output should contain zero rows.
+
+```{r missing-information}
+fsb_directory |>
+  dplyr::filter(
+    is.na(name) | name == "" |
+    is.na(position) | position == "" |
+    is.na(website) | website == ""
+  )
+```

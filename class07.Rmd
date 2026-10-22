@@ -1,0 +1,72 @@
+---
+title: "07class"
+author: "Scarlett Haynes"
+date: "2026-10-12"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+con = DBI::dbConnect(
+  RSQLite::SQLite(),
+  "data/midwest_airbnb.db"
+)
+
+listings = DBI::dbReadTable(con, "listings") |>
+  tibble::as_tibble()
+
+DBI::dbDisconnect(con)
+```
+
+```{r}
+listings |> dplyr::group_by(city) |>   dplyr::summarise(count = dplyr::n())
+```
+
+```{r}
+usethis::edit_r_environ("project")
+```
+
+```{r}
+chat = ellmer::chat_openai(
+  model = "gpt-5.6-luna",
+  params = ellmer::params(reasoning_effort = "none")
+)
+```
+
+
+```{r}
+chat = ellmer::chat_openai(
+  model = "gpt-5.6-luna",
+  params = ellmer::params(reasoning_effort = "none")
+)
+
+library(ellmer)
+
+
+# 2. Define the Airbnb listing description
+description <- "This one of a kind, turn of the century, fully restored mansion is just waiting for you to come and enjoy the vast amenities this house offers! This historic Victorian Mansion was built in the last 1800's and has been fully restored and updated with one thing in mind--luxury! We boast a slate pool table, 10 person hot tub, a custom made fire table, a built in giant projector screen for streaming, arcade games, and much much more! We comfortably sleep 19 guests with 9 dedicated bedrooms."
+
+# 3. Define the structured output schema
+schema <- ellmer::type_object(
+  property_type = ellmer::type_string(),
+  max_guests = ellmer::type_integer(),
+  num_bedrooms = ellmer::type_integer(),
+  key_amenities = ellmer::type_string(
+    "List key amenities separated by |"
+  )
+)
+
+# 4. Extract structured information
+result <- chat$chat_structured(
+  description,
+  type = schema
+)
+
+# 5. Display results
+print(result)
+```
+

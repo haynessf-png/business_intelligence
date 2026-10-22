@@ -1,0 +1,71 @@
+---
+title: "exam pract"
+author: "Scarlett Haynes"
+date: "2026-10-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Packages used (call-by-package:: style per the assignment requirement)
+library(httr2)
+library(jsonlite)
+
+# ------------------------------------------------------------------
+# Why an API call instead of rvest::read_html():
+# The roster page (https://miamiredhawks.com/sports/swimming-and-diving/roster)
+# is a client-side rendered app -- the raw HTML never contains player data,
+# so no CSS selector could ever find it. Instead, the page itself calls
+# Miami Athletics' public JSON API to fetch the roster. We call that same
+# API directly. sportId = 13 is the combined "Swimming and Diving" roster
+# (men + women share one roster, distinguished by a "gender" field).
+# ------------------------------------------------------------------
+
+rvest::read_html("https://miamiredhawks.com/sports/swimming-and-diving/roster") |> 
+  rvest::html_elements("div > a > h3") |>  rvest::html_text2()
+
+resp <- httr2::request("https://miamiredhawks.com/api/v2/Rosters?sportId=13") |>
+  httr2::req_perform()
+```
+
+
+```{r}
+parsed <- jsonlite::fromJSON(
+  httr2::resp_body_string(resp),
+  simplifyDataFrame = FALSE
+)
+
+players <- parsed$items[[1]]$players
+
+# One row per athlete: full name + class year
+build_row <- function(p) {
+  data.frame(
+    name = trimws(paste(p$firstName, p$lastName)),
+    gender = ifelse(is.null(p$gender), NA_character_, p$gender),
+    year = ifelse(
+      is.null(p$academicYearLong) || p$academicYearLong == "",
+      NA_character_,
+      p$academicYearLong
+    ),
+    stringsAsFactors = FALSE
+  )
+}
+
+swim_all <- do.call(rbind, lapply(players, build_row))
+
+# Keep only female and male athletes (drops anything without M/F gender,
+# e.g., if a coach or staff record were ever present)
+swim_df <- swim_all[swim_all$gender %in% c("M", "F"), c("name", "year")]
+rownames(swim_df) <- NULL
+
+swim_df
+```
+
+```{r}
+rvest::read_html("https://miamiredhawks.com/sports/swimming-and-diving/roster") |> 
+  rvest::html_elements("div > a > h3") |>  rvest::html_text2()
+```
+

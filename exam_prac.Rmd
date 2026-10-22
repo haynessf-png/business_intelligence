@@ -1,0 +1,50 @@
+---
+title: "exam_prac"
+author: "Scarlett Haynes"
+date: "2026-10-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+ntse_tbl = readr::read_csv("data/ntse_endowment_us_and_canada_2020.csv")
+
+ntse_tbl = ntse_tbl |>
+  dplyr::rename_with(trimws) |>                         # " endowment_fy_20 " -> "endowment_fy_20"
+  dplyr::mutate(
+    id                = as.character(id),
+    hbcu_indicator    = hbcu_indicator == 1,
+    carnegie_category = as.character(carnegie_category),
+    enrollment = as.integer(enrollment)
+  )
+
+dplyr::glimpse(ntse_tbl)
+```
+
+
+
+```{r}
+ntse_tbl = ntse_tbl |>
+  dplyr::rename_with(stringr::str_trim) |>          # header is " endowment_fy_20 " in the raw file
+  dplyr::mutate(
+    id                = as.character(id),           # an ID is a label, not a number to do math on
+    hbcu_indicator    = hbcu_indicator == 1,        # 1 = HBCU, 2 = not; becomes TRUE/FALSE (blanks stay NA)
+    carnegie_category = as.character(carnegie_category)  # category codes 0-5, not quantities
+  )
+
+dplyr::glimpse(ntse_tbl)
+```
+
+```{r}
+ntse_tbl_clean <- ntse_tbl |>
+  dplyr::rename(endowment_fy_20 = ` endowment_fy_20 `) |>
+  dplyr::mutate(
+    hbcu_indicator    = factor(hbcu_indicator),
+    carnegie_category = factor(carnegie_category)
+  )
+
+```
+
